@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-ddd-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-ddd-api
+  template:
+    metadata:
+      labels:
+        app: go-ddd-api
+    spec:
+      containers:
+        - name: go-ddd-api
+          image: go-ddd-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          env:
+            - name: DB_HOST
+              value: postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: db-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: db-password
+            - name: DB_NAME
+              value: users
+            - name: DB_SSLMODE
+              value: disable

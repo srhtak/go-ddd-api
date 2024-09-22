@@ -14,6 +14,8 @@ import (
 )
 
 func main() {
+	log.SetOutput(os.Stdout)
+    log.Println("Starting the application...")
 	// Load .env file
 	err := godotenv.Load()
 	if err != nil {

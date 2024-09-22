@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"database/sql"
+	"log"
 
 	_ "github.com/lib/pq"
 	"github.com/srhtak/go-ddd-api/internal/domain"
@@ -12,14 +13,27 @@ type PostgresUserRepository struct {
 }
 
 func NewPostgresUserRepository(connectionString string) (*PostgresUserRepository, error) {
-	db, err := sql.Open("postgres", connectionString)
-	if err != nil {
-		return nil, err
-	}
-	if err = db.Ping(); err != nil {
-		return nil, err
-	}
-	return &PostgresUserRepository{db: db}, nil
+    log.Println("Attempting to connect to the database")
+    db, err := sql.Open("postgres", connectionString)
+    if err != nil {
+        log.Printf("Error opening database connection: %v", err)
+        return nil, err
+    }
+
+    log.Println("Pinging the database")
+    if err = db.Ping(); err != nil {
+        log.Printf("Error pinging database: %v", err)
+        return nil, err
+    }
+
+    log.Println("Running migrations")
+    if err = RunMigrations(db); err != nil {
+        log.Printf("Error running migrations: %v", err)
+        return nil, err
+    }
+
+    log.Println("PostgresUserRepository initialized successfully")
+    return &PostgresUserRepository{db: db}, nil
 }
 
 func (r *PostgresUserRepository) Create(user *domain.User) error {
